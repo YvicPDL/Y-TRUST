@@ -3,12 +3,13 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from packagename import prompt
+# from packagename import prompt
 from api.params import *
 from numpy import np
 
-from ml_logic.data import get_recipes_from_datacsv, get_nutriinfos_from_datacsv
-from models.model0_itemslist import optimized_ingredient_matching, list_ingredients
+# from ml_logic.data import get_recipes_from_datacsv, get_nutriinfos_from_datacsv
+# from models.model0_itemslist import optimized_ingredient_matching, list_ingredients, df_nutriinfos
+from ml_logic.data import *
 
 app = FastAPI()
 
@@ -27,8 +28,8 @@ def root():
         'message': "The API is running!"
     }
 
-df_recipes = get_recipes_from_datacsv()
-df_nutriinfos = get_nutriinfos_from_datacsv()
+#df_recipes = get_recipes_from_datacsv()
+#df_nutriinfos = get_nutriinfos_from_datacsv()
 querry_one = HUMAN_MESSAGE
 
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
@@ -36,6 +37,13 @@ querry_one = HUMAN_MESSAGE
 def get_predict():
 #def get_predict(input_one: float,
 #            input_two: float):
+    recette = HUMAN_MESSAGE
+    df_recipes = get_recipes_from_datacsv()
+    df_nutriinfos = get_nutriinfos_from_datacsv()
+    list_ingredients = df_recipes[df_recipes["name"] == recette]["ingredients"].iloc[0]
+
+    result_df = optimized_ingredient_matching(list_ingredients, df_nutriinfos)
+
     """ (0)
     Make a very simple first iteration to test the running session.
     """
@@ -51,7 +59,7 @@ def get_predict():
     #        'input_two': input_two
     #    }
     #}
-    return print(optimized_ingredient_matching(list_ingredients, df_nutriinfos))
+    return print(result_df)
 
 
     """ (2)

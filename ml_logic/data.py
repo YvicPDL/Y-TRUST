@@ -27,6 +27,116 @@ def get_nutriinfos_from_datacsv(
     print(f"✅ Data loaded, with shape {df.shape}")
     return df_nutriinfos
 
+
+# df_model = pd.read_csv("open_food_df_clean.csv", on_bad_lines='skip' , sep="\t", nrows = 500000)
+
+def find_best_match_for_ingredient(args):
+    """
+    Fonction pour traiter un seul ingrédient avec thefuzz
+    """
+    ingredient, df_model = args
+
+    # Retreive product names
+    product_names = df_model['product_name'].tolist()
+
+    # thefuzz.process.extractOne returns (matched_string, score) - no index
+    match_result = process.extractOne(
+        ingredient,
+        product_names,
+        scorer=fuzz.ratio
+    )
+
+    # check minimum score
+    if not match_result or match_result[1] < 80:
+        return pd.DataFrame()  # Pas de match suffisant
+
+    matched_name, score = match_result
+
+    # Find relative index
+    index = product_names.index(matched_name)
+
+    # Retrieve relative index
+    matched_row = df_model.iloc[index].copy()
+
+    # Generate result for the item (ingredient)
+    result_row = {
+        'searched_ingredient': ingredient,
+        'row_id': matched_row.name,  # Index original
+        'product_name': matched_row['product_name'],
+        'matched_product': matched_name,
+        'match_score': score,
+        'energy-kcal_100g': matched_row.get('energy-kcal_100g', 0),
+        'carbohydrates_100g': matched_row.get('carbohydrates_100g', 0),
+        'proteins_100g': matched_row.get('proteins_100g', 0),
+        'fat_100g': matched_row.get('fat_100g', 0),
+        "country_code": matched_row.get("country_code", 0)
+    }
+
+    return pd.DataFrame([result_row])
+
+def optimized_ingredient_matching(list_ingredients, df_model, max_workers=None):
+    """
+    Version optimisée avec thefuzz et parallélisation
+    """
+
+    # Déterminer le nombre optimal de workers
+    if max_workers is None:
+        max_workers = min(32, len(list_ingredients), (os.cpu_count() or 1) * 2)
+
+    print(f"🚀 Traitement de {len(list_ingredients)} ingrédients avec {max_workers} workers...")
+
+    # Préparation des arguments pour la parallélisation
+    args_list = [(ingredient, df_model) for ingredient in list_ingredients]
+
+    all_results = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Soumettre toutes les tâches
+        future_to_ingredient = {
+            executor.submit(find_best_match_for_ingredient, args): args[0]
+            for args in args_list
+        }
+
+        # Suivi de progression
+        completed = 0
+        total = len(future_to_ingredient)
+
+        # Récupérer les résultats au fur et à mesure
+        for future in as_completed(future_to_ingredient):
+            completed += 1
+            ingredient = future_to_ingredient[future]
+
+            try:
+                result_df = future.result()
+                if not result_df.empty:
+                    all_results.append(result_df)
+                    print(f"✅ {completed:3d}/{total} - {ingredient} (score: {result_df.iloc[0]['match_score']:.0f})")
+                else:
+                    print(f"❌ {completed:3d}/{total} - {ingredient} (pas de match >= 80)")
+
+            except Exception as exc:
+                print(f"💥 {completed:3d}/{total} - Erreur pour {ingredient}: {exc}")
+
+    # Concaténation et tri final
+    if all_results:
+        final_result = pd.concat(all_results, ignore_index=True)
+
+        # Tri par score décroissant, puis par kcal croissant
+        # (comme dans votre code original)
+        final_result = final_result.sort_values(
+            ['match_score', "country_code", 'energy-kcal_100g'],
+            ascending=[False, True, True]
+        )
+
+        print(f"\n🎉 TERMINÉ! {len(final_result)} matches trouvés sur {len(list_ingredients)} ingrédients")
+        print(f"Score moyen: {final_result['match_score'].mean():.1f}")
+
+        return final_result
+    else:
+        print("\n😞 Aucun match trouvé avec score >= 80")
+        return pd.DataFrame()
+
+
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Data Scie,ntist has alreaady clean the raw data by

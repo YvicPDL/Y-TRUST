@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy our code
 # COPY y-trust-001 y-trust-001
 COPY api api
-COPY packagename packagename
+COPY ml_logic ml_logic
 
 # Make directories that we need, but that are not included in the COPY
 RUN mkdir /raw_data
