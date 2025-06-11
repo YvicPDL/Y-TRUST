@@ -3,6 +3,7 @@ import numpy as np
 
 ##################  CONSTANTS PROMPT  #####################
 WELCOME_PROMPT = "Welcome! Type your questions below. Use `quit` or `exit` to stop."
+HUMAN_MESSAGE = "Quick Bolognese Sauce"
 SYSTEM_PROMPT_1 ="check the DEFAULT_LANGUAGE, find the working day's, the datetime, and search the recipe"
 ABORT_VALUES = ("quit", "exit", "quit()", "exit()")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
@@ -12,7 +13,7 @@ DEFAULT_NUMBER_PEOPLE_AT_TABLE = 1
 DEFAULT_THREAD_ID = "jules001"
 DEFAULT_LANGUAGE = "English"
 ##################  CONSTANTS DEFAULT MODELS   #####################
-DEFAULT_MAX_RECEIPES_TO_SELECT = 3
+DEFAULT_MAX_RECIPES_TO_SELECT = 3
 DEFAULT_EXACT_ITEMS_NUMBER = 5
 DIETARY_KCAL_DAY = 2500
 NUTRI_NEEDS_BREAKFAST = 0,25

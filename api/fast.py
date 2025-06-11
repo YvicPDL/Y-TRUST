@@ -7,6 +7,9 @@ from packagename import prompt
 from api.params import *
 from numpy import np
 
+from ml_logic.data import get_recipes_from_datacsv, get_nutriinfos_from_datacsv
+from models.model0_itemslist import optimized_ingredient_matching, list_ingredients
+
 app = FastAPI()
 
 app.add_middleware(
@@ -24,15 +27,32 @@ def root():
         'message': "The API is running!"
     }
 
+df_recipes = get_recipes_from_datacsv()
+df_nutriinfos = get_nutriinfos_from_datacsv()
+querry_one = HUMAN_MESSAGE
+
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.get("/predict")
-def get_predict(input_one: float,
-            input_two: float):
-    # (1) first iteration to run
-    """ (1)
+def get_predict():
+#def get_predict(input_one: float,
+#            input_two: float):
+    """ (0)
     Make a very simple first iteration to test the running session.
     """
-    prediction = float(input_one) + float(input_two)
+    #prediction = float(input_one) + float(input_two)
+
+    """ (1)
+    Return the ingredients list with a score
+    """
+    #return {
+    #    'prediction': prediction,
+    #    'inputs': {
+    #        'input_one': input_one,
+    #        'input_two': input_two
+    #    }
+    #}
+    return print(optimized_ingredient_matching(list_ingredients, df_nutriinfos))
+
 
     """ (2)
     Make a single receipe prediction.
@@ -40,7 +60,6 @@ def get_predict(input_one: float,
     Assumes `pickup_datetime` is provided as a string by the user in "%Y-%m-%d %H:%M:%S" format
     Assumes `pickup_datetime` implicitly refers to the "UTC" timezone (as any user in Paris City would order a receipe)
     """
-    # (2) second iteration to run
     # df = pd.DataFrame(dict(
         # user_count=[USER_COUNT],
         # receipe_query= str,
@@ -72,13 +91,7 @@ def get_predict(input_one: float,
             #'score nutrival': nutrival,
     #       }
 
-    return {
-        'prediction': prediction,
-        'inputs': {
-            'input_one': input_one,
-            'input_two': input_two
-        }
-    }
+
 
 # (memo reload loc) uvicorn api.fast:app --reload --port 8000
 # (memo reload prod) uvicorn api.fast:app --host 0.0.0.0 --port $PORT)

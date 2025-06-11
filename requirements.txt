@@ -1,3 +1,11 @@
+# added librairies to the initial set
+colorama
+pathlib
+google.cloud
+concurrent.futures
+thefuzz
+
+# initial set of librairies
 annotated-types==0.7.0
 anyio==3.7.1
 appnope==0.1.4
