@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from packagename import prompt
 from api.params import *
+from numpy import np
 
 app = FastAPI()
 
