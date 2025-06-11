@@ -3,7 +3,7 @@
 #      a slim or tensorflow base
 
 #      Standard version
-FROM python:3.12
+FROM python:3.10.6-buster
 
 #      Slim version
 # FROM python:3.12-slim
@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy our code
-COPY packagename packagename
+# COPY y-trust-001 y-trust-001
 COPY api api
+COPY packagename packagename
 
 # Make directories that we need, but that are not included in the COPY
 RUN mkdir /raw_data
@@ -29,4 +30,8 @@ RUN mkdir /models
 # TODO: to speed up, you can load your model from MLFlow or Google Cloud Storage at startup using
 # RUN python -c 'replace_this_with_the_commands_you_need_to_run_to_load_the_model'
 
+# Local
+# CMD uvicorn api.fast:app --host 0.0.0.0
+# Deployemnt
 CMD uvicorn api.fast:app --host 0.0.0.0 --port $PORT
+# (memo terminal : docker run -it -e PORT=8000 -p 8000:8000 $GAR_IMAGE:dev bash

@@ -14,10 +14,11 @@ if os.path.isfile('requirements_dev.txt'):
         content = f.readlines()
     requirements.extend([x.strip() for x in content if 'git+' not in x])
 
-
-setup(name='packagename',
+setup(name='y-trust-001',
       version="0.0.1",
-      description="Project Description",
+      description="Locally, and safe",
+      author="y-trust",
+      author_email="tbd@gamail.com",
       packages=find_packages(),
       install_requires=requirements,
       test_suite='tests',
