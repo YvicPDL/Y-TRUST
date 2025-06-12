@@ -1,11 +1,10 @@
-# TODO: Import your package, replace this by explicit imports of what you need
-#from packagename.main import predict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from packagename import prompt
 from api.params import *
-from numpy import np
+
+
+from ml_logic.data import *
 
 app = FastAPI()
 
@@ -24,15 +23,45 @@ def root():
         'message': "The API is running!"
     }
 
+#df_recipes = get_recipes_from_datacsv()
+#df_nutriinfos = get_nutriinfos_from_datacsv()
+querry_one = "Quick Bolognese Sauce"
+
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.get("/predict")
-def get_predict(input_one: float,
-            input_two: float):
-    # (1) first iteration to run
-    """ (1)
+def get_predict():
+#def get_predict(input_one: float,
+#            input_two: float):
+    recette = querry_one.strip().lower()
+    df_recipes = get_recipes_from_datacsv()
+    df_model = get_nutriinfos_from_datacsv()
+    list_ingredients = df_recipes[df_recipes["name"] == recette]["ingredients"].iloc[0]
+    list_ingredients = list_ingredients.strip('["]').replace('", "', ', ')
+    list_ingredients = list_ingredients.split(", ")
+
+    result_df = optimized_ingredient_matching(list_ingredients, df_model)
+
+
+    """ (0)
     Make a very simple first iteration to test the running session.
     """
-    prediction = float(input_one) + float(input_two)
+    #prediction = float(input_one) + float(input_two)
+
+    """ (1)
+    Return the ingredients list with a score
+    """
+    #return {
+    #    'prediction': prediction,
+    #    'inputs': {
+    #        'input_one': input_one,
+    #        'input_two': input_two
+    #    }
+    #}
+    print(result_df)
+
+    return result_df
+    # return {'prediction': result_df.to_json()}
+
 
     """ (2)
     Make a single receipe prediction.
@@ -40,7 +69,6 @@ def get_predict(input_one: float,
     Assumes `pickup_datetime` is provided as a string by the user in "%Y-%m-%d %H:%M:%S" format
     Assumes `pickup_datetime` implicitly refers to the "UTC" timezone (as any user in Paris City would order a receipe)
     """
-    # (2) second iteration to run
     # df = pd.DataFrame(dict(
         # user_count=[USER_COUNT],
         # receipe_query= str,
@@ -72,13 +100,9 @@ def get_predict(input_one: float,
             #'score nutrival': nutrival,
     #       }
 
-    return {
-        'prediction': prediction,
-        'inputs': {
-            'input_one': input_one,
-            'input_two': input_two
-        }
-    }
+
 
 # (memo reload loc) uvicorn api.fast:app --reload --port 8000
 # (memo reload prod) uvicorn api.fast:app --host 0.0.0.0 --port $PORT)
+
+print(get_predict())
