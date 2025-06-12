@@ -1,14 +1,9 @@
-# TODO: Import your package, replace this by explicit imports of what you need
-#from packagename.main import predict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from packagename import prompt
 from api.params import *
-from numpy import np
+import numpy as np
 
-# from ml_logic.data import get_recipes_from_datacsv, get_nutriinfos_from_datacsv
-# from models.model0_itemslist import optimized_ingredient_matching, list_ingredients, df_nutriinfos
 from ml_logic.data import *
 
 app = FastAPI()
@@ -43,6 +38,7 @@ def get_predict():
     list_ingredients = df_recipes[df_recipes["name"] == recette]["ingredients"].iloc[0]
 
     result_df = optimized_ingredient_matching(list_ingredients, df_nutriinfos)
+
 
     """ (0)
     Make a very simple first iteration to test the running session.

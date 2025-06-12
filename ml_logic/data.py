@@ -1,9 +1,8 @@
 from api.params import *
-from google.cloud import bigquery
-from colorama import Fore, Style
 from pathlib import Path
-
 import pandas as pd
+from thefuzz import fuzz, process
+from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 
 # original dataste = dataset_y-trust/en.openfoodfacts.org.products.csv
 # row_count before cleaning = 3871738
@@ -14,7 +13,7 @@ def get_recipes_from_datacsv(
     """
     Retrieve `local` data from raw_data folder
     """
-    df_recipes = pd.read_csv("../raw_data/recipes_ingredients.csv",nrows=DATA_SIZE)
+    df_recipes = pd.read_csv("../api/raw_data/recipes_ingredients.csv",nrows=DATA_SIZE)
     print(f"✅ Data loaded, with shape {df.shape}")
     return df_recipes
 
@@ -23,12 +22,9 @@ def get_nutriinfos_from_datacsv(
     """
     Retrieve `local` data from raw_data folder
     """
-    df_nutriinfos = pd.read_csv("../raw_data/open_food_df_clean.csv", on_bad_lines='skip' , sep="\t", nrows = 500000)
+    df_nutriinfos = pd.read_csv("../api/raw_data/open_food_df_clean.csv", on_bad_lines='skip' , sep="\t", nrows = 500000)
     print(f"✅ Data loaded, with shape {df.shape}")
     return df_nutriinfos
-
-
-# df_model = pd.read_csv("open_food_df_clean.csv", on_bad_lines='skip' , sep="\t", nrows = 500000)
 
 def find_best_match_for_ingredient(args):
     """
@@ -136,7 +132,6 @@ def optimized_ingredient_matching(list_ingredients, df_model, max_workers=None):
         print("\n😞 Aucun match trouvé avec score >= 80")
         return pd.DataFrame()
 
-
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Data Scie,ntist has alreaady clean the raw data by
@@ -166,36 +161,3 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # Remove buggy transactions
 
     return df
-
-def load_data_to_bq(
-        data: pd.DataFrame,
-        gcp_project:str,
-        bq_dataset:str,
-        table: str,
-        truncate: bool
-    ) -> None:
-    """
-    - Save the DataFrame to BigQuery
-    - Empty the table beforehand if `truncate` is True, append otherwise
-    """
-
-    assert isinstance(data, pd.DataFrame)
-    full_table_name = f"{gcp_project}.{bq_dataset}.{table}"
-    print(Fore.BLUE + f"\nSave data to BigQuery @ {full_table_name}...:" + Style.RESET_ALL)
-
-    # Load data onto full_table_name
-    data.columns = [f"_{column}" if not str(column)[0].isalpha() and not str(column)[0] == "_" else str(column) for column in data.columns]
-
-    client = bigquery.Client()
-
-    # Define write mode and schema
-    write_mode = "WRITE_TRUNCATE" if truncate else "WRITE_APPEND"
-    job_config = bigquery.LoadJobConfig(write_disposition=write_mode)
-
-    print(f"\n{'Write' if truncate else 'Append'} {full_table_name} ({data.shape[0]} rows)")
-
-    # Load data
-    job = client.load_table_from_dataframe(data, full_table_name, job_config=job_config)
-    result = job.result()  # wait for the job to complete
-
-    print(f"✅ Data saved to bigquery, with shape {data.shape}")
