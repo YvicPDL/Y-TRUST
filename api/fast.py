@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.params import *
-import numpy as np
+
 
 from ml_logic.data import *
 
@@ -25,19 +25,21 @@ def root():
 
 #df_recipes = get_recipes_from_datacsv()
 #df_nutriinfos = get_nutriinfos_from_datacsv()
-querry_one = HUMAN_MESSAGE
+querry_one = "Quick Bolognese Sauce"
 
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.get("/predict")
 def get_predict():
 #def get_predict(input_one: float,
 #            input_two: float):
-    recette = HUMAN_MESSAGE
+    recette = querry_one.strip().lower()
     df_recipes = get_recipes_from_datacsv()
-    df_nutriinfos = get_nutriinfos_from_datacsv()
+    df_model = get_nutriinfos_from_datacsv()
     list_ingredients = df_recipes[df_recipes["name"] == recette]["ingredients"].iloc[0]
+    list_ingredients = list_ingredients.strip('["]').replace('", "', ', ')
+    list_ingredients = list_ingredients.split(", ")
 
-    result_df = optimized_ingredient_matching(list_ingredients, df_nutriinfos)
+    result_df = optimized_ingredient_matching(list_ingredients, df_model)
 
 
     """ (0)
@@ -55,7 +57,10 @@ def get_predict():
     #        'input_two': input_two
     #    }
     #}
-    return print(result_df)
+    print(result_df)
+
+    return result_df
+    # return {'prediction': result_df.to_json()}
 
 
     """ (2)
@@ -99,3 +104,5 @@ def get_predict():
 
 # (memo reload loc) uvicorn api.fast:app --reload --port 8000
 # (memo reload prod) uvicorn api.fast:app --host 0.0.0.0 --port $PORT)
+
+print(get_predict())

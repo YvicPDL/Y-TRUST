@@ -8,13 +8,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExec
 # row_count before cleaning = 3871738
 # row_count after data analysis cleaning, cf comments in def clean_data
 
+                            # ../api/raw_data/recipes_ingredients.csv
+                            # api/raw_data/recipes_ingredients.csv
+
 def get_recipes_from_datacsv(
 ):
     """
     Retrieve `local` data from raw_data folder
     """
-    df_recipes = pd.read_csv("../api/raw_data/recipes_ingredients.csv",nrows=DATA_SIZE)
-    print(f"✅ Data loaded, with shape {df.shape}")
+    df_recipes = pd.read_csv("../api/raw_data/recipes_ingredients.csv", on_bad_lines='skip', sep=",", nrows=DATA_SIZE)
+    print(f"✅ Data loaded, with shape {df_recipes.shape}")
     return df_recipes
 
 def get_nutriinfos_from_datacsv(
@@ -22,9 +25,9 @@ def get_nutriinfos_from_datacsv(
     """
     Retrieve `local` data from raw_data folder
     """
-    df_nutriinfos = pd.read_csv("../api/raw_data/open_food_df_clean.csv", on_bad_lines='skip' , sep="\t", nrows = 500000)
-    print(f"✅ Data loaded, with shape {df.shape}")
-    return df_nutriinfos
+    df_model = pd.read_csv("../api/raw_data/open_food_df_clean.csv", on_bad_lines='skip' , sep="\t", nrows = 5000)
+    print(f"✅ Data loaded, with shape {df_model.shape}")
+    return df_model
 
 def find_best_match_for_ingredient(args):
     """
@@ -161,3 +164,12 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # Remove buggy transactions
 
     return df
+
+
+def parse_ingredients_from_recipe(recipe_name:str, df_recipes: pd.DataFrame) -> list:
+    """
+    Given a recipe name, return a cleaned list of ingredients.
+    """
+    raw_list = df_recipes[df_recipes["name"] == recipe_name]["ingredients"].iloc[0]
+    raw_list = raw_list.strip('["]').replace('", "', ', ')
+    return raw_list.split(", ")

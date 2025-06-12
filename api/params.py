@@ -26,14 +26,15 @@ GR_PROTEIN_KCAL = 4
 LIPIDS_PER_DAY = 0,20
 GR_LIPID_KCAL = 9
 ##################  VARIABLES FLOW RUN ##################
-DATA_SIZE = os.environ.get("DATA_SIZE")
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE"))
-MODEL_TARGET = os.environ.get("MODEL_TARGET")
-GCP_PROJECT = os.environ.get("GCP_PROJECT")
-GCP_REGION = os.environ.get("GCP_REGION")
+DATA_SIZE = 1000
+#DATA_SIZE = os.environ.get("DATA_SIZE")
+# CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE"))
+#MODEL_TARGET = os.environ.get("MODEL_TARGET")
+#GCP_PROJECT = os.environ.get("GCP_PROJECT")
+#GCP_REGION = os.environ.get("GCP_REGION")
 #BQ_DATASET = os.environ.get("BQ_DATASET")
 #BQ_REGION = os.environ.get("BQ_REGION")
-BUCKET_NAME = os.environ.get("BUCKET_NAME")
+#BUCKET_NAME = os.environ.get("BUCKET_NAME")
 #INSTANCE = os.environ.get("INSTANCE")
 #MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI")
 #MLFLOW_EXPERIMENT = os.environ.get("MLFLOW_EXPERIMENT")
@@ -41,18 +42,18 @@ BUCKET_NAME = os.environ.get("BUCKET_NAME")
 #PREFECT_FLOW_NAME = os.environ.get("PREFECT_FLOW_NAME")
 #PREFECT_LOG_LEVEL = os.environ.get("PREFECT_LOG_LEVEL")
 #EVALUATION_START_DATE = os.environ.get("EVALUATION_START_DATE")
-GAR_IMAGE = os.environ.get("GAR_IMAGE")
-GAR_MEMORY = os.environ.get("GAR_MEMORY")
+#GAR_IMAGE = os.environ.get("GAR_IMAGE")
+# GAR_MEMORY = os.environ.get("GAR_MEMORY")
 
 ##################  CONSTANTS DATA REGISTERY  #####################
-LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), ".y-trust_001", "mlops", "data")
-LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".y-trust_001", "mlops", "training_outputs")
+#LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), ".y-trust_001", "mlops", "data")
+#LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".y-trust_001", "mlops", "training_outputs")
 
 # COLUMN_NAMES_RAW = ['delivery_amount','pickup_datetime', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'user_count']
 
 # DTYPES_RAW = {}
 
-DTYPES_PROCESSED = np.float32
+# DTYPES_PROCESSED = np.float32
 
 
 ##################  URLS  #####################
@@ -65,3 +66,4 @@ DTYPES_PROCESSED = np.float32
 
 
 ################## VALIDATIONS #################
+""
